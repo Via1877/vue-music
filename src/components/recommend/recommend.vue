@@ -1,38 +1,47 @@
 <template>
   <div class='recommend'>
-    <div class='recommend-content'>
-      <div v-if="recommends.length" class='slider-wrapper'>
-         <slider>
+    <scroll ref="scroll" class='recommend-content' :data="discList">
+      <div>
+        <div v-if="recommends.length" class='slider-wrapper'>
+          <slider>
             <div v-for='(item,index) in recommends' :key='index'>
-              <a :href='item.linkUrl'><img :src='item.picUrl' alt=''></a>
+              <a :href='item.linkUrl'><img class="needclick" :src='item.picUrl' alt=''></a>
             </div>
-         </slider>
+          </slider>
+        </div>
+        <div v-if="discList.length" class='recommend-list'>
+          <h1 class='list-title'>热门歌曲名单</h1>
+          <ul>
+            <li class="item" v-for="(item, index) in discList" :key="index">
+              <div class="icon">
+                <img v-lazy="item.imgurl" alt="" width="60px">
+              </div>
+              <div class="text">
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class='recommend-list'>
-        <h1 class='list-title'>热门歌曲名单</h1>
-        <ul>
-          <li class="item" v-for="(item, index) in discList" :key="index">
-            <div class="icon">
-              <img :src="item.imgurl" alt="" width="60px">
-            </div>
-            <div class="text">
-              <h2 class="name" v-html="item.creator.name"></h2>
-              <p class="desc" v-html="item.dissname"></p>
-            </div>
-          </li>
-        </ul>
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
       </div>
-    </div>
+    </scroll>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import Slider from 'base/slider/slider'
+import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
 
 export default {
   components: {
-    Slider
+    Slider,
+    Scroll,
+    Loading
   },
   data () {
     return {
