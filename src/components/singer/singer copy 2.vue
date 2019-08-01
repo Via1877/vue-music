@@ -1,12 +1,8 @@
 <template>
-  <div>
-    <div v-if="Object.keys(singerList).length">
-      <div v-for="(val, key, index) in singerList" :key="index">
-        <p>{{val.title}}</p>
-      </div>
-    </div>
-    <div class="loading-container" v-show="!Object.keys(singerList).length">
-      <loading></loading>
+  <div v-if="singerList.length" >
+    <p>{{singerList.key}}</p>
+    <div  v-for="(val, key, index) in singerList" :key="index">
+      <p>{{key}}</p>
     </div>
   </div>
 </template>
@@ -14,14 +10,10 @@
 <script>
 import axios from 'axios'
 import Singer from 'common/js/singer'
-import Loading from 'base/loading/loading'
 
 const HOT_SINGER_LEN = 20
 
 export default {
-  components: {
-    Loading
-  },
   data() {
     return {
       singerIndex: [],
@@ -29,9 +21,9 @@ export default {
     }
   },
   created() {
-    this.$nextTick(function() {
+    setTimeout(() => {
       this.getSingerIndex()
-    })
+    }, 20)
   },
   methods: {
     getSingerIndex() {
@@ -69,7 +61,8 @@ export default {
         .then((res) => {
           let _data = res.data.SingerListSever.data
           this.getIndex(_data)
-          // Object.assign(this.singerList, this.singerList)
+          Object.assign(this.singerList, this.singerList)
+          // console.log(this.singerList)
         })
         .catch((error) => {
           console.log(error)
@@ -113,31 +106,33 @@ export default {
       this.singerIndex.forEach((item) => {
         const key = item.name
         if (!this.singerList.key) {
-          this.singerList[key] = Object.assign({}, this.singerList[key], {
+          this.singerList[key] = {
             title: key,
             items: []
-          })
+          }
           this.getSingerList(item.id)
             .then((res) => {
               let _data = res.data.SingerListSever.data
-              // 处理数据
-              _data.singerlist.forEach((item, index) => {
-                if (index < HOT_SINGER_LEN) {
-                  // console.log(this.singerList)
-                  this.singerList[key].items.push(new Singer({
-                    id: item.singer_id,
-                    name: item.singer_name,
-                    singerPic: item.singer_pic
-                  }))
-                }
-              })
+              if (!_data.singerlist.length) {
+              } else {
+                // 处理数据
+                _data.singerlist.forEach((item, index) => {
+                  if (index < HOT_SINGER_LEN) {
+                    this.singerList[key].items.push(new Singer({
+                      id: item.singer_id,
+                      name: item.singer_name,
+                      singerPic: item.singer_pic
+                    }))
+                  }
+                })
+              }
             })
             .catch((error) => {
               console.log(error)
             })
+          // console.log(this.singerList)
         }
       })
-      console.log(this.singerList)
     }
   }
 }
